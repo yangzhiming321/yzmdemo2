@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>简易掷骰子</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.2rem;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .dice-container {
+            margin: 30px 0;
+        }
+        
+        .dice {
+            width: 120px;
+            height: 120px;
+            background: white;
+            border-radius: 15px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 60px;
+            font-weight: bold;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            border: 3px solid #e0e0e0;
+            transition: transform 0.5s ease;
+        }
+        
+        .dice.rolling {
+            animation: roll 1s ease-in-out;
+        }
+        
+        @keyframes roll {
+            0% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(90deg) scale(1.1); }
+            50% { transform: rotate(180deg) scale(1.2); }
+            75% { transform: rotate(270deg) scale(1.1); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+        
+        .controls {
+            margin: 30px 0;
+        }
+        
+        .roll-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .roll-btn:hover {
+            background: #2980b9;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(52, 152, 219, 0.4);
+        }
+        
+        .roll-btn:active {
+            transform: translateY(1px);
+        }
+        
+        .multi-dice {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .dice-count-btn {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .dice-count-btn.active {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+        
+        .dice-count-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stats {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .stats h3 {
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .stat-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            color: #3498db;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .history {
+            margin-top: 20px;
+            text-align: left;
+        }
+        
+        .history h4 {
+            color: #333;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .history-list {
+            max-height: 120px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .history-item {
+            background: white;
+            padding: 8px 12px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            border-left: 4px solid #3498db;
+            font-size: 0.9rem;
+        }
+        
+        footer {
+            margin-top: 30px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 500px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .dice {
+                width: 100px;
+                height: 100px;
+                font-size: 50px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .roll-btn {
+                padding: 15px 30px;
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎲 简易掷骰子</h1>
+        <p class="subtitle">点击按钮开始掷骰子，看看你的运气如何！</p>
+        
+        <div class="dice-container">
+            <div class="dice" id="dice">6</div>
+        </div>
+        
+        <div class="controls">
+            <button class="roll-btn" id="rollBtn">
+                <i class="fas fa-dice"></i> 掷骰子
+            </button>
+            
+            <div class="multi-dice">
+                <button class="dice-count-btn active" data-count="1">1个骰子</button>
+                <button class="dice-count-btn" data-count="2">2个骰子</button>
+                <button class="dice-count-btn" data-count="3">3个骰子</button>
+            </div>
+        </div>
+        
+        <div class="stats">
+            <h3><i class="fas fa-chart-bar"></i> 统计信息</h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-label">总掷骰次数</div>
+                    <div class="stat-value" id="totalRolls">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">当前点数</div>
+                    <div class="stat-value" id="currentPoints">6</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">最高点数</div>
+                    <div class="stat-value" id="highestPoints">6</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">平均点数</div>
+                    <div class="stat-value" id="averagePoints">6.0</div>
+                </div>
+            </div>
+            
+            <div class="history">
+                <h4><i class="fas fa-history"></i> 最近记录</h4>
+                <div class="history-list" id="historyList">
+                    <!-- 历史记录会动态添加 -->
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2025 简易掷骰子 | 点击掷骰或按空格键开始</p>
+        </footer>
+    </div>
+
+    <script>
+        class DiceGame {
+            constructor() {
+                this.diceElement = document.getElementById('dice');
+                this.rollBtn = document.getElementById('rollBtn');
+                this.currentPointsElement = document.getElementById('currentPoints');
+                this.totalRollsElement = document.getElementById('totalRolls');
+                this.highestPointsElement = document.getElementById('highestPoints');
+                this.averagePointsElement = document.getElementById('averagePoints');
+                this.historyListElement = document.getElementById('historyList');
+                
+                this.totalRolls = 0;
+                this.highestPoints = 6;
+                this.averagePoints = 6;
+                this.history = [];
+                this.diceCount = 1;
+                this.isRolling = false;
+                
+                this.init();
+            }
+            
+            init() {
+                // 绑定按钮事件
+                this.rollBtn.addEventListener('click', () => this.rollDice());
+                
+                // 绑定骰子数量按钮
+                document.querySelectorAll('.dice-count-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.dice-count-btn').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.diceCount = parseInt(e.target.dataset.count);
+                        this.updateDiceDisplay();
+                    });
+                });
+                
+                // 绑定键盘事件（空格键掷骰子）
+                document.addEventListener('keydown', (e) => {
+                    if (e.code === 'Space' && !this.isRolling) {
+                        e.preventDefault();
+                        this.rollDice();
+                    }
+                });
+                
+                // 初始显示
+                this.updateStats();
+            }
+            
+            rollDice() {
+                if (this.isRolling) return;
+                
+                this.isRolling = true;
+                this.diceElement.classList.add('rolling');
+                
+                // 播放掷骰子声音（模拟）
+                this.playDiceSound();
+                
+                // 模拟掷骰子过程
+                let rolls = 0;
+                const rollInterval = setInterval(() => {
+                    this.showRandomDice();
+                    rolls++;
+                    
+                    if (rolls > 15) { // 滚动15次后停止
+                        clearInterval(rollInterval);
+                        this.finishRoll();
+                    }
+                }, 50);
+            }
+            
+            showRandomDice() {
+                const results = [];
+                for (let i = 0; i < this.diceCount; i++) {
+                    results.push(Math.floor(Math.random() * 6) + 1);
+                }
+                
+                if (this.diceCount === 1) {
+                    this.diceElement.textContent = results[0];
+                } else {
+                    this.diceElement.textContent = results.join('+');
+                }
+                
+                return results;
+            }
+            
+            finishRoll() {
+                // 生成最终结果
+                const results = this.showRandomDice();
+                const total = results.reduce((sum, value) => sum + value, 0);
+                
+                // 更新统计
+                this.totalRolls++;
+                this.highestPoints = Math.max(this.highestPoints, total);
+                
+                // 计算平均点数
+                const sumHistory = this.history.reduce((sum, val) => sum + val, 0);
+                this.averagePoints = ((sumHistory + total) / (this.history.length + 1)).toFixed(1);
+                
+                // 添加到历史记录
+                this.history.unshift(total);
+                if (this.history.length > 10) {
+                    this.history.pop();
+                }
+                
+                // 更新显示
+                this.updateDiceDisplay(total);
+                this.updateStats();
+                this.updateHistory();
+                
+                // 停止动画
+                setTimeout(() => {
+                    this.diceElement.classList.remove('rolling');
+                    this.isRolling = false;
+                }, 300);
+            }
+            
+            updateDiceDisplay(value = null) {
+                if (value === null) {
+                    if (this.diceCount === 1) {
+                        this.diceElement.textContent = '6';
+                    } else {
+                        this.diceElement.textContent = '6'.repeat(this.diceCount).split('').join('+');
+                    }
+                } else {
+                    this.currentPointsElement.textContent = value;
+                }
+            }
+            
+            updateStats() {
+                this.totalRollsElement.textContent = this.totalRolls;
+                this.highestPointsElement.textContent = this.highestPoints;
+                this.averagePointsElement.textContent = this.averagePoints;
+            }
+            
+            updateHistory() {
+                this.historyListElement.innerHTML = '';
+                this.history.forEach((points, index) => {
+                    const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    const item = document.createElement('div');
+                    item.className = 'history-item';
+                    item.textContent = `掷骰 #${this.totalRolls - index}: ${points}点 (${time})`;
+                    this.historyListElement.appendChild(item);
+                });
+            }
+            
+            playDiceSound() {
+                // 创建简单的掷骰子声音效果
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = 800;
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 0.3);
+            }
+        }
+        
+        // 页面加载完成后初始化游戏
+        window.addEventListener('DOMContentLoaded', () => {
+            new DiceGame();
+        });
+    </script>
+</body>
+</html>
